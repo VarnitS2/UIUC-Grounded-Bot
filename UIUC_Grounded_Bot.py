@@ -40,7 +40,7 @@ async def on_message(message):
         log(message, messageList[0], FAIL, failReason="Command not in the #bot-commands.")
         return
 
-    if message.author == client.user:
+    if user == client.user:
         return
     
     if messageList[0] == '!hello':
@@ -65,7 +65,6 @@ async def on_message(message):
     if messageList[0] == '!addrole':
         print('[{}] [{}] - Executed !addrole'.format(datetime.now(), user))
         try:
-            member = message.author
             role = messageList[1]
             guild = message.guild
             allRoles = guild.roles
@@ -83,7 +82,7 @@ async def on_message(message):
                 if elem.name == ADMIN or elem.name == BOTS or role == UIUC_GROUNDED_BOT:
                     continue
                 if elem.name == role:
-                    await member.add_roles(elem)
+                    await user.add_roles(elem)
                     await channel.send('Role added!')
                     roleExistFlag = True
                     roleAddFlag = True
@@ -107,10 +106,9 @@ async def on_message(message):
     if messageList[0] == '!removerole':
         print('[{}] [{}] - Executed !removerole'.format(datetime.now(), user))
         try:
-            member = message.author
             role = messageList[1]
             guild = message.guild
-            memberRoles = member.roles
+            userRoles = user.roles
 
             roleRemoveFlag = False
             roleExistFlag = False
@@ -120,12 +118,12 @@ async def on_message(message):
             if role == ADMIN or role == BOTS or role == UIUC_GROUNDED_BOT:
                 forbiddenRoleFlag = True
             
-            for elem in memberRoles:
+            for elem in userRoles:
                 noRolesFlag = False
                 if elem.name == ADMIN or elem.name == BOTS or elem.name == UIUC_GROUNDED_BOT:
                     continue
                 if elem.name == role:
-                    await member.remove_roles(elem)
+                    await user.remove_roles(elem)
                     await channel.send('Role removed!')
                     roleExistFlag = True
                     roleRemoveFlag = True
@@ -153,7 +151,7 @@ async def on_message(message):
             allRoles = guild.roles
             noRolesFlag = True
 
-            reply = '```\nThis is the list of all active roles:'
+            reply = '```\nThis is a list of all active roles:'
 
             for elem in allRoles:
                 if elem.name == ADMIN or elem.name == BOTS or elem.name == UIUC_GROUNDED_BOT or elem.name == EVERYONE:
@@ -167,6 +165,34 @@ async def on_message(message):
             if noRolesFlag:
                 await channel.send('There are currently no active roles')
                 log(message, messageList[0], SUCCESS, comments="No active roles.")
+            else:
+                await channel.send(reply)
+                log(message, messageList[0], SUCCESS)
+
+        except Exception as e:
+            await channel.send('There was an error executing the command. This event has been logged.')
+            log(message, messageList[0], FAIL, e)
+
+    if messageList[0] == '!myroles':
+        print('[{}] [{}] - Executed !myroles'.format(datetime.now(), user))
+        try:
+            userRoles = user.roles
+            noRolesFlag = True
+
+            reply = '```\nThis is a list of your active roles:'
+
+            for elem in userRoles:
+                if elem.name == EVERYONE:
+                    continue
+                else:
+                    reply += '\n' + elem.name
+                    noRolesFlag = False
+
+            reply += '\n```'
+
+            if noRolesFlag:
+                await channel.send('You have no active roles')
+                log(message, messageList[0], SUCCESS, comments="No active user roles")
             else:
                 await channel.send(reply)
                 log(message, messageList[0], SUCCESS)
