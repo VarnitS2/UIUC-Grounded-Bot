@@ -33,11 +33,10 @@ async def on_message(message):
     channel = message.channel
     user = message.author
 
-    if not messageList[0].startswith('!'):
-        return
-
     if not (channel.name == 'bot-commands' or channel.name == 'bot-commands-test'):
-        log(message, messageList[0], FAIL, failReason="Command not in the #bot-commands.")
+        return
+        
+    if not messageList[0].startswith('!'):
         return
 
     if user == client.user:
