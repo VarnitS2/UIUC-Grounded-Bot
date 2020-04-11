@@ -20,12 +20,12 @@ def log(message, command, result, failReason="", comments=""):
         elif result == FAIL:
             f.write('[{}] -> Triggered by: {}\nMessage content: {}\nCommand executed: {}\nResult: {}\nReason: {}\nComments: {}\n\n'.format(datetime.now(), message.author, message.content, command, result, failReason, comments))
 
-def logReddit(result):
+def logReddit(message, result):
     with open(logFileName, 'a+') as f:
         if result == SUCCESS:
-            f.write('[{}] -> Reddit instance initialized.\n\n'.format(datetime.now()))
+            f.write('[{}] -> Triggered by: {}\nReddit instance initialized.\n\n'.format(datetime.now(), message.author))
         elif result == FAIL:
-            f.write('[{}] -> Reddit instance initialization failed.\n\n'.format(datetime.now()))
+            f.write('[{}] -> Triggered by: {}\nReddit instance initialization failed.\n\n'.format(datetime.now(), message.author))
 
 @client.event
 async def on_ready():
@@ -43,11 +43,11 @@ async def on_message(message):
 
     if not (channel.name == 'bot-commands' or channel.name == 'bot-commands-test'):
         return
-        
-    if not messageList[0].startswith('!'):
-        return
 
     if user == client.user:
+        return
+
+    if not messageList[0].startswith('!'):
         return
     
     if messageList[0] == '!hello':
@@ -213,13 +213,15 @@ async def on_message(message):
         try:
             reddit = initializeRedditInstance()
             if reddit.read_only:
-                print('[{}] - Reddit instance initialized.'.format(datetime.now()))
-                logReddit(SUCCESS)
+                print('[{}] [{}] - Reddit instance initialized.'.format(datetime.now(), user))
+                logReddit(message, SUCCESS)
             else:
-                print('[{}] - Reddit instance initialization failed.'.format(datetime.now()))
-                logReddit(FAIL)
+                print('[{}] [{}] - Reddit instance initialization failed.'.format(datetime.now(), user))
+                logReddit(message, FAIL)
                 return
             
+            meme = discord.File('Memes/4-11-2020.jpg')
+            await channel.send(file=meme)
             log(message, messageList[0], SUCCESS)
 
         except Exception as e:
