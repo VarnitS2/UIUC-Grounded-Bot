@@ -239,7 +239,7 @@ async def on_message(message):
     if messageList[0] == '!help':
         print('[{}] [{}] - Executed !help'.format(datetime.now(), user))
         reply = '```This is the help page.\n\nList of commands:\n\t1. !addrole <role name> - Add the role <role name> to yourself.\n\t2. !removerole <role name> - Remove the role <role name> from yourself.\n\t'
-        reply += '3. !allroles - Display a list of all active roles.\n\t4. !myroles - Display a list of your active roles.```'
+        reply += '3. !allroles - Display a list of all active roles.\n\t4. !myroles - Display a list of your active roles.\n\t5. !randmeme - Only works in #memes; generates a random meme.```'
         await channel.send(reply)
         log(message, messageList[0], SUCCESS)
 
