@@ -1,6 +1,6 @@
 import discord
 from datetime import datetime
-from RedditWorker import initializeRedditInstance
+from RedditWorker import initializeRedditInstance, getRandomMeme
 
 client = discord.Client()
 ADMIN = "Admin"
@@ -220,7 +220,8 @@ async def on_message(message):
                 logReddit(message, FAIL)
                 return
             
-            meme = discord.File('Memes/4-11-2020.jpg')
+            memeFilePath = getRandomMeme(reddit)
+            meme = discord.File(memeFilePath)
             await channel.send(file=meme)
             log(message, messageList[0], SUCCESS)
 
