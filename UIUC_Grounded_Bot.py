@@ -1,5 +1,6 @@
 import discord
 from datetime import datetime
+from RedditWorker import initializeRedditInstance
 
 client = discord.Client()
 ADMIN = "Admin"
@@ -9,7 +10,7 @@ EVERYONE = "@everyone"
 FAIL = "Fail"
 SUCCESS = "Success"
 
-clientSecretFileName = "client_secret.txt"
+clientSecretFileName = "discord_client_secret.txt"
 logFileName = "Logs.txt"
 
 def log(message, command, result, failReason="", comments=""):
@@ -18,6 +19,13 @@ def log(message, command, result, failReason="", comments=""):
             f.write('[{}] -> Triggered by: {}\nMessage content: {}\nCommand executed: {}\nResult: {}\nComments: {}\n\n'.format(datetime.now(), message.author, message.content, command, result, comments))
         elif result == FAIL:
             f.write('[{}] -> Triggered by: {}\nMessage content: {}\nCommand executed: {}\nResult: {}\nReason: {}\nComments: {}\n\n'.format(datetime.now(), message.author, message.content, command, result, failReason, comments))
+
+def logReddit(result):
+    with open(logFileName, 'a+') as f:
+        if result == SUCCESS:
+            f.write('[{}] -> Reddit instance initialized.\n\n'.format(datetime.now()))
+        elif result == FAIL:
+            f.write('[{}] -> Reddit instance initialization failed.\n\n'.format(datetime.now()))
 
 @client.event
 async def on_ready():
@@ -195,6 +203,24 @@ async def on_message(message):
             else:
                 await channel.send(reply)
                 log(message, messageList[0], SUCCESS)
+
+        except Exception as e:
+            await channel.send('There was an error executing the command. This event has been logged.')
+            log(message, messageList[0], FAIL, e)
+
+    if messageList[0] == '!randmeme':
+        print('[{}] [{}] - Executed !randmeme'.format(datetime.now(), user))
+        try:
+            reddit = initializeRedditInstance()
+            if reddit.read_only:
+                print('[{}] - Reddit instance initialized.'.format(datetime.now()))
+                logReddit(SUCCESS)
+            else:
+                print('[{}] - Reddit instance initialization failed.'.format(datetime.now()))
+                logReddit(FAIL)
+                return
+            
+            log(message, messageList[0], SUCCESS)
 
         except Exception as e:
             await channel.send('There was an error executing the command. This event has been logged.')
