@@ -41,6 +41,34 @@ async def on_message(message):
     channel = message.channel
     user = message.author
 
+    if channel.name == 'memes' or channel.name == 'bot-commands-test':
+        if user == client.user:
+            return
+        
+        if not messageList[0].startswith('!'):
+            return
+
+        if messageList[0] == '!randmeme':
+            print('[{}] [{}] - Executed !randmeme'.format(datetime.now(), user))
+            try:
+                reddit = initializeRedditInstance()
+                if reddit.read_only:
+                    print('[{}] [{}] - Reddit instance initialized.'.format(datetime.now(), user))
+                    logReddit(message, SUCCESS)
+                else:
+                    print('[{}] [{}] - Reddit instance initialization failed.'.format(datetime.now(), user))
+                    logReddit(message, FAIL)
+                    return
+                
+                memeFilePath = getRandomMeme(reddit)
+                meme = discord.File(memeFilePath)
+                await channel.send(file=meme)
+                log(message, messageList[0], SUCCESS)
+
+            except Exception as e:
+                await channel.send('There was an error executing the command. This event has been logged.')
+                log(message, messageList[0], FAIL, e)
+
     if not (channel.name == 'bot-commands' or channel.name == 'bot-commands-test'):
         return
 
@@ -203,27 +231,6 @@ async def on_message(message):
             else:
                 await channel.send(reply)
                 log(message, messageList[0], SUCCESS)
-
-        except Exception as e:
-            await channel.send('There was an error executing the command. This event has been logged.')
-            log(message, messageList[0], FAIL, e)
-
-    if messageList[0] == '!randmeme':
-        print('[{}] [{}] - Executed !randmeme'.format(datetime.now(), user))
-        try:
-            reddit = initializeRedditInstance()
-            if reddit.read_only:
-                print('[{}] [{}] - Reddit instance initialized.'.format(datetime.now(), user))
-                logReddit(message, SUCCESS)
-            else:
-                print('[{}] [{}] - Reddit instance initialization failed.'.format(datetime.now(), user))
-                logReddit(message, FAIL)
-                return
-            
-            memeFilePath = getRandomMeme(reddit)
-            meme = discord.File(memeFilePath)
-            await channel.send(file=meme)
-            log(message, messageList[0], SUCCESS)
 
         except Exception as e:
             await channel.send('There was an error executing the command. This event has been logged.')
