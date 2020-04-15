@@ -244,5 +244,6 @@ async def on_message(message):
         log(message, messageList[0], SUCCESS)
 
 
-with open(clientSecretFileName) as f:
-    client.run(f.readline())
+if __name__ == '__main__':
+    with open(clientSecretFileName) as f:
+        client.run(f.readline())
